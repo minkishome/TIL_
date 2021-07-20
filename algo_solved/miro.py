@@ -26,35 +26,86 @@ def solution(n, start, end, roads, traps):
     dq = deque([]) # 도착점, 시간, 상태를 넣자
     for arrived in list_route[start]:
         if list_trap[arrived]:
-            dq.append([arrived, list_roads[start][arrived], 0])
+            dq.append([arrived, list_roads[start][arrived], 1, 0]) # before가 0이면 역방향 1이면 정방향
         else:
-            dq.append([arrived, list_roads[start][arrived], 1])
-
+            dq.append([arrived, list_roads[start][arrived], 1, 1])
+    # TODO : trap위치만 바뀐다.
+    
     while dq:
-        start, total_time, status = dq.popleft()
+        start, total_time, direction, true_false = dq.popleft()
         if start == end:
             if total_time < answer:
                 answer = total_time
                 continue
-        if status: # 정방향
-            for new_start in list_route[start]:
-                new_time = total_time + list_roads[start][new_start]
-                if new_time < answer:
-                    if list_trap[new_start]:
-                        dq.append([new_start, new_time, 0])
-                    else:
-                        dq.append([new_start, new_time, 1])
 
+        if direction:
+
+            if true_false:
+                list_q = list_route
+                dir = 1
+            else:
+                list_q = reverse_list_route
+                dir = 0
+
+            if list_q[start]:
+                for new_start in list_q[start]:
+                    new_time = total_time + list_roads[start][new_start]
+                    if new_time < answer:
+                        if list_trap[new_start]:
+                            dq.append([new_start, new_time, dir, 0])
+                        else:
+                            dq.append([new_start, new_time, dir, 1])
         else:
-            for new_start in reverse_list_route[start]:
-                new_time = total_time + list_roads[start][new_start]
-                if new_time < answer:
-                    if list_trap[new_start]:
-                        dq.append([new_start, new_time, 0])
-                    else:
-                        dq.append([new_start, new_time, 1])
+            if true_false:
+                list_q = reverse_list_route
+                dir = 0
+            else:
+                list_q = list_route
+                dir = 1
+
+            if list_q[start]:
+                for new_start in list_q[start]:
+                    new_time = total_time + list_roads[start][new_start]
+                    if new_time < answer:
+                        if list_trap[new_start]:
+                            dq.append([new_start, new_time, dir, 0])
+                        else:
+                            dq.append([new_start, new_time, dir, 1])
+
+
+        #
+        # if status: # 정방향
+        #     if before:
+        #         list_q = list_route
+        #     else:
+        #         list_q = reverse_list_route
+        #     if list_q[start]:
+        #         for new_start in list_q[start]:
+        #             new_time = total_time + list_roads[start][new_start]
+        #             if new_time < answer:
+        #                 if list_trap[new_start]:
+        #                     dq.append([new_start, new_time, 0, 1])
+        #                 else:
+        #                     dq.append([new_start, new_time, 1, 1])
+        #
+        # else:
+        #     if before:
+        #         list_q = reverse_list_route
+        #     else:
+        #         list_q = list_route
+        #     if list_q[start]:
+        #         if reverse_list_route[start]:
+        #             for new_start in reverse_list_route[start]:
+        #                 new_time = total_time + list_roads[start][new_start]
+        #                 if new_time < answer:
+        #                     if list_trap[new_start]:
+        #                         dq.append([new_start, new_time, 0, 0])
+        #                     else:
+        #                         dq.append([new_start, new_time, 1, 0])
 
 
 
 
     return answer
+
+print(solution(4,	1,	4,	[[1, 2, 1], [3, 2, 1], [2, 4, 1]],	[2, 3]))
